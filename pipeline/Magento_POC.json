@@ -1,0 +1,63 @@
+{
+	"name": "Magento_POC",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select top 2 * from (\n\t(\n\t\tselect\n\n\t\t\tRIGHT('00000' + CONVERT(VARCHAR(5), dupm.udfNTGID), 5) as sku\n\t\t\t,DB.TradingAs\n\t\t\t,DP.ProductID\n\t\t\t,DP.ProductType\n\t\t\t,DP.ProductCode\n\t\t\t,CAST(DB.MasterBranchCode AS varchar) as branchCode\n\t\t\t,CASE\t\n\t\t\t\twhen dp.ProductType = 6\n\t\t\t\tthen ((FS.StockAvailable / 0.000000001) / (dp.Width * dp.Thickness)) / 1000\n\t\t\telse \n\t\t\t\tFS.StockAvailable \n\t\t\t end as qty\n\t\tfrom FctStock FS \n\t\tleft outer join DimBranch DB\n\t\t\tON (FS.MasterBranchID = DB.MasterBranchID)\n\t\tinner join DimProduct DP\n\t\t\tON (FS.MasterProductID = DP.MasterProductID)\n\t\tinner join DimudoProductMaster dupm\n\t\t\tON (dupm.MasterProductID = dp.MasterProductID)\n\t\twhere\n\t\t\tdp.Deleted = 0 and \n\t\t\tDB.Deleted = 0\n\t\t\tand DB.udfWeb = 1\n\t\t\tand FS.MasterStockLocationID = 0 \n\t\t\tand dupm.udfNTGID is NOT NULL\n\t\t\tand DB.SourceSystem in ('BisTrack Consolidated', 'LAVERS')\n\t\t\tand FS.StockAvailable >= 0\n\t\t\tand isnull(dp.StockControlByLength,0) != 1\n\t)\n\tUNION\n\t(\n\t\tSELECT\n\t\t\tRIGHT('00000' + CONVERT(VARCHAR(5), dupm.udfNTGID), 5) as sku\n\t\t\t,DB.TradingAs\n\t\t\t,DP.ProductID\n\t\t\t,DP.ProductType\n\t\t\t,DP.ProductCode\n\t\t\t,CAST(DB.MasterBranchCode AS varchar) as branchCode\n\t\t\t,SUM(SL.Length*SL.StockAvailable)\n\t\tFROM FctStockByLength SL\n\t\tINNER JOIN DimProduct DP\n\t\t\tON (\tSL.MasterProductID = DP.MasterProductID)\n\t\tINNER JOIN DimBranch DB\n\t\t\tON(\t\tDB.MasterBranchID = SL.MasterBranchID)\n\t\tINNER JOIN DimudoProductMaster dupm\n\t\t\tON (\tdupm.MasterProductID = DP.MasterProductID)\n\t\twhere\n\t\t\tSL.StockAvailable >= 0\n\t\t\tand DP.ProductType = 6\n\t\t\tand dp.StockControlByLength = 1\n\t\t\tand DB.Deleted = 0\n\t\t\tand DP.Deleted = 0\n\t\t\tand DB.udfWeb = 1\n\t\t\tand dupm.udfNTGID is NOT NULL\n\t\t\tand DP.SourceSystem in ('BisTrack Consolidated', 'LAVERS')\n\t\t\tand DP.Deleted = 0\n\t\tGROUP BY dupm.udfNTGID,DB.MasterBranchCode,DB.TradingAs\n\t\t\t,DP.ProductID\n\t\t\t,DP.ProductType\n\t\t\t,DP.ProductCode\n\t)\n) t where\n\tt.sku in (2780)\n\tORDER BY t.sku;",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "OdbcSink",
+						"writeBatchSize": 0,
+						"preCopyScript": {
+							"value": "Truncate table catalog_product_Stock",
+							"type": "Expression"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_magento_source",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ODBC_Magento",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-11-23T08:19:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

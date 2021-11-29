@@ -1,0 +1,6 @@
+{
+	"name": "Magento-MySQL",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

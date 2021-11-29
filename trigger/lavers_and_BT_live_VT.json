@@ -1,0 +1,17 @@
+{
+	"name": "lavers_and_BT_live_VT",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 1,
+				"startTime": "2021-03-12T17:00:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}

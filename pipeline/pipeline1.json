@@ -1,0 +1,101 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT [OrderID]\n      ,[OrderGUID]\n      ,[ParentGUID]\n      ,[LatestOrderStatus]\n      ,[OrderStatusDWHLastModified]\n      ,[AvailabilityStatus]\n      ,[SourceSystem]\n      ,[CallBack]\n  FROM [dbo].[OrderStatusChangeHistory]\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_Order_Status_Lookup",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup1').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Web1",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "https://ntg-amg-dev.azure-api.net/v1/api/update/order",
+									"type": "Expression"
+								},
+								"method": "POST",
+								"headers": {
+									"Content-Type": {
+										"value": "application/json",
+										"type": "Expression"
+									},
+									"X-API-KEY": {
+										"value": "fe70300302484247b1025f5a7287be93",
+										"type": "Expression"
+									}
+								},
+								"body": {
+									"value": "{\n    \"orderCode\":\"@item().ParentGUID\",\n    \"status\": \"@item().LatestOrderStatus\"\n}",
+									"type": "Expression"
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": {
+										"value": "https://management.azure.com",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-04-04T06:45:36Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

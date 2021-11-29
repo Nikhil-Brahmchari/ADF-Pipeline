@@ -1,0 +1,17 @@
+{
+	"name": "Lavers_images",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Lavers_images",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

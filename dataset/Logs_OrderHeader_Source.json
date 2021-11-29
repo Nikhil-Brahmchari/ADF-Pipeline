@@ -1,0 +1,13 @@
+{
+	"name": "Logs_OrderHeader_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

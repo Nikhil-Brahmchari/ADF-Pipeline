@@ -1,0 +1,508 @@
+{
+	"name": "SqlServerTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tablename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "BranchID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Deleted",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "BranchCode",
+				"type": "varchar"
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			},
+			{
+				"name": "TradingAs",
+				"type": "varchar"
+			},
+			{
+				"name": "Address1",
+				"type": "varchar"
+			},
+			{
+				"name": "Address2",
+				"type": "varchar"
+			},
+			{
+				"name": "Address3",
+				"type": "varchar"
+			},
+			{
+				"name": "City",
+				"type": "varchar"
+			},
+			{
+				"name": "County",
+				"type": "varchar"
+			},
+			{
+				"name": "PostCode",
+				"type": "varchar"
+			},
+			{
+				"name": "Country",
+				"type": "varchar"
+			},
+			{
+				"name": "Telephone1",
+				"type": "varchar"
+			},
+			{
+				"name": "Telephone2",
+				"type": "varchar"
+			},
+			{
+				"name": "Fax",
+				"type": "varchar"
+			},
+			{
+				"name": "EmailAddress",
+				"type": "varchar"
+			},
+			{
+				"name": "TaxAreaID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DivisionID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "RegionID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "GLCode",
+				"type": "varchar"
+			},
+			{
+				"name": "InterimRunning",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "QuickAccountID1",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "QuickAccountLabel1",
+				"type": "varchar"
+			},
+			{
+				"name": "QuickAccountID2",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "QuickAccountLabel2",
+				"type": "varchar"
+			},
+			{
+				"name": "QuickAccountID3",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "QuickAccountLabel3",
+				"type": "varchar"
+			},
+			{
+				"name": "QuickAccountID4",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "QuickAccountLabel4",
+				"type": "varchar"
+			},
+			{
+				"name": "QuickAccountID5",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "QuickAccountLabel5",
+				"type": "varchar"
+			},
+			{
+				"name": "CreditControlTelephone",
+				"type": "varchar"
+			},
+			{
+				"name": "CreditControlEmail",
+				"type": "varchar"
+			},
+			{
+				"name": "CreditControlUserIDs",
+				"type": "varchar"
+			},
+			{
+				"name": "YardBookRefMask",
+				"type": "varchar"
+			},
+			{
+				"name": "CountGroupMask",
+				"type": "varchar"
+			},
+			{
+				"name": "PickingZoneMask",
+				"type": "varchar"
+			},
+			{
+				"name": "BinLocationMask",
+				"type": "varchar"
+			},
+			{
+				"name": "DefaultStockLocationID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CashAccountID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ConfirmPOsForSpecials",
+				"type": "bit"
+			},
+			{
+				"name": "PickingNotePrinter",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer1",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer2",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer3",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer4",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer5",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer6",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer7",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer8",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer9",
+				"type": "varchar"
+			},
+			{
+				"name": "Printer10",
+				"type": "varchar"
+			},
+			{
+				"name": "BackOrdersLastCheckedUpTo",
+				"type": "smalldatetime",
+				"precision": 16,
+				"scale": 0
+			},
+			{
+				"name": "EDIBranchReference1",
+				"type": "varchar"
+			},
+			{
+				"name": "EDIBranchReference2",
+				"type": "varchar"
+			},
+			{
+				"name": "DefaultOrderSaleType",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "DateTimeCreated",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CreatedByID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateTimeLastModified",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "LastModifiedByID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CalcTaxBasedOnBranchTaxArea",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "udfPurchaseOrderPrefix",
+				"type": "varchar"
+			},
+			{
+				"name": "udfBranchManager",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfSoftwoodProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfHardwoodProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfLaminateProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfFlooringProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfHardwareProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfJoineryProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfSheetsProductChampion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfCounterManager",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfStockController",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfTransportManager",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfPrimarySuperuser",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfSecondarySuperuser",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfAdministrator",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfSHOPItemsinStock",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "udfBranchType",
+				"type": "varchar"
+			},
+			{
+				"name": "Inactive",
+				"type": "bit"
+			},
+			{
+				"name": "udfScanTrackUser",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DefaultWorksOrderAllocateSource",
+				"type": "bit"
+			},
+			{
+				"name": "FacilityCode",
+				"type": "varchar"
+			},
+			{
+				"name": "AvailableInWebTrack",
+				"type": "bit"
+			},
+			{
+				"name": "udfScanTrackOrientation",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryAreaID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfBranchLogoPath",
+				"type": "varchar"
+			},
+			{
+				"name": "udfBranchLogoType",
+				"type": "varchar"
+			},
+			{
+				"name": "udfLLMaxPlots",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "Longitude",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 8
+			},
+			{
+				"name": "Latitude",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 8
+			},
+			{
+				"name": "DefaultIssuingBranchID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DefaultReceivingLocationID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DefaultMarshallingLocationID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "UsesAdvancedStockManagement",
+				"type": "bit"
+			},
+			{
+				"name": "DefaultReturnsLocationID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "AllowOverPicking",
+				"type": "bit"
+			},
+			{
+				"name": "AllowPickingFromOtherLocations",
+				"type": "bit"
+			},
+			{
+				"name": "UseDocumentBranch",
+				"type": "bit"
+			},
+			{
+				"name": "udfArnoldLaverWebSiteURL",
+				"type": "varchar"
+			},
+			{
+				"name": "udfArnoldLaverVATNo",
+				"type": "varchar"
+			},
+			{
+				"name": "udfArnoldLaverCompanyRegNo",
+				"type": "varchar"
+			},
+			{
+				"name": "FixedReturnsBranchID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "udfCRMisActive",
+				"type": "bit"
+			},
+			{
+				"name": "udfCRMDefaultAccountOwnerID",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "udfCRMDefaultAccountOwnerGUID",
+				"type": "varchar"
+			},
+			{
+				"name": "udfCRMDefaultAccountOwnerName",
+				"type": "varchar"
+			},
+			{
+				"name": "udfBranchReportingType",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().tablename",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

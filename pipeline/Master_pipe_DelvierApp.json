@@ -1,0 +1,46 @@
+{
+	"name": "Master_pipe_DelvierApp",
+	"properties": {
+		"activities": [
+			{
+				"name": "erp_to_stg",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "erp_to_stg",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "stg_to_main",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "erp_to_stg",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Stg_to_main_tables",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "Delivery_app"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-07-14T05:57:47Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,9 @@
+{
+	"name": "ntg-df-ecom-dev",
+	"location": "uksouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "8b9792d9-9ace-4b8b-bb4f-ac96ea141e49",
+		"tenantId": "8967978f-dcd4-465a-b6ac-d538aae53777"
+	}
+}

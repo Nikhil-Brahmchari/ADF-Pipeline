@@ -1,0 +1,13 @@
+{
+	"name": "NTG_main_tables",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

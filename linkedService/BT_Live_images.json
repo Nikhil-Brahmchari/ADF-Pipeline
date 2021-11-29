@@ -1,0 +1,20 @@
+{
+	"name": "BT_Live_images",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "Sftp",
+		"typeProperties": {
+			"host": "10.0.7.4",
+			"port": 22,
+			"skipHostKeyValidation": true,
+			"authenticationType": "Basic",
+			"userName": "nytsftp",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI0NzVkZTM1Yy0xYzcwLTRjYjUtOWI0ZC0xN2NlNDc5NDljYzgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "MIDDEV-SQL01",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

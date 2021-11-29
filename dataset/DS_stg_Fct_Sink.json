@@ -1,0 +1,25 @@
+{
+	"name": "DS_stg_Fct_Sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo.",
+			"table": {
+				"value": "@concat('Dim',dataset().TableName)",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

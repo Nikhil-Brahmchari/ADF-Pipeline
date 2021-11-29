@@ -1,0 +1,17 @@
+{
+	"name": "DS_OrderHeader_Source_BT_LIVE_VT",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ERPDB_BTLIVE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "OrderHeader"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

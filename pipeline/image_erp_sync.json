@@ -1,0 +1,88 @@
+{
+	"name": "image_erp_sync",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT\n    OUF.Orderid as Orderid,OUF.OrderGUID as OrderGUID, OUF.OrderStatus as OrderStatus, OUF.MasterUserid as MasterUserID,\n    OUF.udfGPSLatitude as udfGPSLatitude, OUF.udfGPSLongitude as udfGPSLongitude, OUF.Notes as Notes, OUF.SourceSystem as sourcesystem,\n    OIF.UpdateImageId as UpdateImageId, OIF.TypeOfImage as TypeOfImage,OIF.StorageSourceUrl as StorageSourceUrl, OIF.createdby as createdby, OIF.Ref1 as Ref1, OIF.externalID as externalID,\n    OIF.SignatureTextName as SignatureTextName, OIF.PageNumber as PageNumber\nFROM OrderUpdateFeed OUF\nINNER JOIN OrderImageFeed OIF\nON (OUF.OrderGUID = OIF.OrderGUID and OUF.SourceSystem = OIF.SourceSystem) \nwhere OUF.OrderGUID not in ( select OrderGUID from OrderImageSyncHistory ) \n\tand OUF.SourceSystem in ('LAVERS', 'BisTrack Consolidated')\norder by OrderGUID",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Lookup_for_DEV",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Web1",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": "https://ntg-amg-dev.azure-api.net/api/order/saveERPScanTrackImageRecord",
+								"method": "POST",
+								"headers": {
+									"Content-Type": {
+										"value": "application/json",
+										"type": "Expression"
+									}
+								},
+								"body": {
+									"value": "@concat('[{\n    \"Orderid\": \"',item().Orderid,'\",\n    \"OrderGUID\": \"',item().OrderGUID,'\",\n\"OrderStatus\": \"',item().OrderStatus,'\",\n\"MasterUserID\": \"',item().MasterUserID,'\",\n\"udfGPSLatitude\": \"',item().udfGPSLatitude,'\",\n\"udfGPSLongitude\": \"',item().udfGPSLongitude,'\",\n\"Notes\": \"',item().Notes,'\",\n\"sourcesystem\": \"',item().sourcesystem,'\",\n\"StorageSourceUrl\": \"',item().StorageSourceUrl,'\",\n\"UpdateImageId\": \"',item().UpdateImageId,'\",\n\"TypeOfImage\": \"',item().TypeOfImage,'\",\n\"createdby\": \"',item().createdby,'\",\n\"Ref1\": \"',item().Ref1,'\",\n\"externalID\": \"',item().externalID,'\",\n\"SignatureTextName\": \"',item().SignatureTextName,'\",\n    \"PageNumber\": \"',item().PageNumber,'\"\n}]')",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-08-11T13:25:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

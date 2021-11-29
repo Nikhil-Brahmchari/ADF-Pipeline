@@ -1,0 +1,33 @@
+{
+	"name": "stg_to_fct_v2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Stored procedure to load to fct_dimension",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[ERP1_Load]"
+				},
+				"linkedServiceName": {
+					"referenceName": "NTG_DWH_LS",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "eCommerce_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-04-19T10:28:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

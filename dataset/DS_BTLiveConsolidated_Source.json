@@ -1,0 +1,17 @@
+{
+	"name": "DS_BTLiveConsolidated_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ERPDB_BTConsolidated_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "OrderHeader"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

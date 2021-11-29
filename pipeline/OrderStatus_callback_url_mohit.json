@@ -1,0 +1,137 @@
+{
+	"name": "OrderStatus_callback_url_mohit",
+	"properties": {
+		"activities": [
+			{
+				"name": "Order_Status_Lookup",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT [OrderID]\n      ,[OrderGUID]\n      ,[ParentGUID]\n      ,[LatestOrderStatus]\n      ,[OrderStatusDWHLastModified]\n      ,[AvailabilityStatus]\n      ,[SourceSystem]\n      ,[CallBack]\n  FROM [dbo].[OrderStatusChangeHistory]\nwhere AvailabilityStatus='Ready'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_Order_Status_Lookup",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "For each Order Status",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Order_Status_Lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Order_Status_Lookup').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "call callback url",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "https://ntg-amg-dev.azure-api.net/v1/api/sendOrderStatusUpdate",
+									"type": "Expression"
+								},
+								"method": "POST",
+								"headers": {
+									"Content-Type": {
+										"value": "application/json",
+										"type": "Expression"
+									},
+									"X-API-KEY": {
+										"value": "fe70300302484247b1025f5a7287be93",
+										"type": "Expression"
+									}
+								},
+								"body": {
+									"value": "{\n    \"orderCode\":\"@item().ParentGUID\",\n    \"status\": \"@item().LatestOrderStatus\",\n\"callbackURL\":\"@item().CallBack\"\n}",
+									"type": "Expression"
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": {
+										"value": "https://management.azure.com",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Update Order status",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "call callback url",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Update_order_status]",
+								"storedProcedureParameters": {
+									"ParentGUID": {
+										"value": {
+											"value": "@item().ParentGUID",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "NTG_DWH_LS",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-04-08T10:41:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

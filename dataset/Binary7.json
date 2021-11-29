@@ -1,0 +1,30 @@
+{
+	"name": "Binary7",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BT Consolidated images",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"path": {
+				"type": "string"
+			},
+			"name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": {
+					"value": "@dataset().name",
+					"type": "Expression"
+				},
+				"folderPath": "/@dataset().path"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

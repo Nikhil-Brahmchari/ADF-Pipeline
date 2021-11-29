@@ -1,0 +1,17 @@
+{
+	"name": "ERPDB_BTLIVE",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Bistrack Live",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.0.7.4;initial catalog=\"BisTrack Live\";user id=afsuser",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJhMDMxNjAxNC0xYjY4LTRkMTYtOTFkZC1kZWY5YWIyNWM0YmIiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "MIDDEV-SQL01",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

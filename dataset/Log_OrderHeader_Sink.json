@@ -1,0 +1,17 @@
+{
+	"name": "Log_OrderHeader_Sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "pipeline_log"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

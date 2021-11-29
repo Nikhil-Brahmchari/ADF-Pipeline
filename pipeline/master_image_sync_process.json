@@ -1,0 +1,63 @@
+{
+	"name": "master_image_sync_process",
+	"properties": {
+		"activities": [
+			{
+				"name": "ERP_SYNC",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "image_erp_sync",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "image_Sync_lavers",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ERP_SYNC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Image_sync_process_Lavers",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "image_sync_consolidated",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ERP_SYNC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Image_sync_process_consolidated",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-08-11T13:29:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

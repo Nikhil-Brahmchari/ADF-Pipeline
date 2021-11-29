@@ -1,0 +1,17 @@
+{
+	"name": "orderfeed_ADFRunDateTIme",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "orderfeed_ADFRunDateTIme"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,16 @@
+{
+	"name": "ls_ngt_ka",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=ntg-dwh-devsvr.database.windows.net;initial catalog=ntg-dwh-dev;user id=afs_dwh_ro@ntg-dwh-devsvr",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI0MTgwOTE0ZS0xMjc3LTQ3YjEtYmE4OS0xZTM4NTgzMWU2ZGQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "MIDDEV-SQL01",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

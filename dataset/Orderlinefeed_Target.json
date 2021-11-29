@@ -1,0 +1,17 @@
+{
+	"name": "Orderlinefeed_Target",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ntg_orderstagingdb_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "NTG_OrderLineImport"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

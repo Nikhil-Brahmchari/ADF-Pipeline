@@ -1,0 +1,60 @@
+{
+	"name": "Magento_POC_Price",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select distinct dupm.udfNTGID AS sku, \n                    'RetailA' as priceBandCode,\n                    fpsp.SellPrice as priceExVAT,\n\t\t     ProductID\n                    from DimProduct DP\n           LEFT OUTER JOIN DimudoProductMaster dupm\n                    ON (dupm.MasterProductID = dp.MasterProductID and dp.SourceSystem = dupm.SourceSystem)\n           LEFT OUTER JOIN (select fsp.MasterProductID,\n                            fsp.SourceSystem,\n                            fsp.BandNumber as BandNumber,\n                            fsp.SellPrice as sellprice\n                    from FctProductSellPriceBand fsp,\n                        (select MasterProductID,\n                                Max(DWHLastModified) max_dwh_mod_date\n                            from FctProductSellPriceBand ifpsb\n\t\t\t\t\t\t\twhere ifpsb.BandNumber = 10\n                            group by MasterProductID) maxfsp\n                    where fsp.MasterProductID = maxfsp.MasterProductID\n                    and fsp.DWHLastModified = maxfsp.max_dwh_mod_date) fpsp\n                                ON (dp.MasterProductID = fpsp.MasterProductID and dp.SourceSystem = fpsp.SourceSystem)   \n                    where dupm.udfNTGID in (02994, 03000, 03020, 03025,00842, 00843, 00858, 00860, 00862, 00863,03166,03149)\n                    and dp.Deleted = 0\n                    and fpsp.BandNumber = 10\n                  and dupm.udfWebRange = 1\n                   and DP.SourceSystem in ('BisTrack Consolidated', 'LAVERS')\n                   and dupm.udfNTGID IS NOT NULL\n                     ORDER BY dupm.udfNTGID",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "OdbcSink",
+						"writeBatchSize": 0,
+						"preCopyScript": "Truncate Table catalog_product_price"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Magento_Source_Price",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ODBC_Sink_Price",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-11-23T12:04:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

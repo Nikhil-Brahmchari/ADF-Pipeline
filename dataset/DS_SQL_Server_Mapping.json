@@ -1,0 +1,17 @@
+{
+	"name": "DS_SQL_Server_Mapping",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "StgAccountsStatement"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,198 @@
+{
+	"name": "Image_sync_process_consolidated",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup_lavers",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "select H.orderGUID,replace(I.storagesourceurl,'https://ntgmapistg.blob.core.windows.net/','') as URL,\nreplace((case when ERPSubFolderPath='' then ERPFolderPath\nelse concat(ERPFolderPath,'\\',ERPSubFolderPath)\nend ),'\\\\MIDDEV-SQL01\\BisTrackData\\BisTrack Consolidated\\ScanTrack\\Store\\','\\') path\n,H.Filename,I.UpdateImageId,I.TypeOfImage,I.DWHLastModified,I.createdby,I.PageNumber,H.SourceSystem from OrderImageSyncHistory H\njoin OrderImageFeed  I\non(H.DWHUpdateImageID=I.updateimageID and H.SourceSystem=I.SourceSystem)\nwhere H.SourceSystem='BisTrack Consolidated' \n--and H.orderGUID not in ( select orderGUID from UpdateOrderImageData where SourceSystem='BisTrack Consolidated')\norder by OrderGUID",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Lookup_for_DEV",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach2",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup_lavers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup_lavers').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "BinarySource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "BinaryReadSettings"
+									}
+								},
+								"sink": {
+									"type": "BinarySink",
+									"storeSettings": {
+										"type": "SftpWriteSettings",
+										"operationTimeout": "01:00:00",
+										"useTempFileRename": true
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "Binary4",
+									"type": "DatasetReference",
+									"parameters": {
+										"URL": "@item().URL"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Binary_consolidated",
+									"type": "DatasetReference",
+									"parameters": {
+										"path": "@item().path",
+										"name": "@item().Filename"
+									}
+								}
+							]
+						},
+						{
+							"name": "Stored procedure1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy data1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Update_synctable_updateorderimagetable]",
+								"storedProcedureParameters": {
+									"createdby": {
+										"value": {
+											"value": "@item().createdby",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"DWHLastModified": {
+										"value": {
+											"value": "@item().DWHLastModified",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"OrderGUID": {
+										"value": {
+											"value": "@item().OrderGUID",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PageNumber": {
+										"value": {
+											"value": "@item().PageNumber",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"SourceSystem": {
+										"value": {
+											"value": "@item().SourceSystem",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TypeOfImage": {
+										"value": {
+											"value": "@item().TypeOfImage",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"UpdateImageId": {
+										"value": {
+											"value": "@item().UpdateImageId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"URL": {
+										"value": {
+											"value": "@item().URL",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "NTG_DWH_LS",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-08-11T13:24:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

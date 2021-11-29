@@ -1,0 +1,17 @@
+{
+	"name": "Orderfeed_source_NTG",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "OrderFeed"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

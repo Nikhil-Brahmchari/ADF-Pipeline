@@ -1,0 +1,17 @@
+{
+	"name": "SqlServer1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Lavers-Dev",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.0.7.4;initial catalog=bisTrackLaver;user id=afsuser",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI3NGI4MzExZC04N2ZiLTQ0YTctYjU2MS05YzNiODFhMzNmNzIiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "MIDDEV-SQL01",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

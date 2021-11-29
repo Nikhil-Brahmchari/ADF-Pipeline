@@ -1,0 +1,19 @@
+{
+	"name": "Tumbling_Window_Dependency_Trigger_Lavers",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Minute",
+			"interval": 30,
+			"startTime": "2021-03-10T06:09:00Z",
+			"delay": "00:10:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "BT_Live_images",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BT_Live_images",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "ERPDB_BTConsolidated_LS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Bistrack Consolidated",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=10.0.7.4;initial catalog=\"BisTrack Consolidated\";user id=afsuser",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIyNDNlODNiMS1hZmY2LTRhZDktOWQ4My1iZTViYTY2YTQ1YWMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "MIDDEV-SQL01",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

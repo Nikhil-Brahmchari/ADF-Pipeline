@@ -1,0 +1,42 @@
+{
+	"name": "DS_Order_Status_Lookup",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "ORDERID",
+				"type": "varchar"
+			},
+			{
+				"name": "ORDERGUID",
+				"type": "varchar"
+			},
+			{
+				"name": "LatestOrderStatus",
+				"type": "varchar"
+			},
+			{
+				"name": "OrderStatusDWHLastModified",
+				"type": "varchar"
+			},
+			{
+				"name": "AvailabilityStatus",
+				"type": "varchar"
+			},
+			{
+				"name": "SourceSystem",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Order_lookup_table"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

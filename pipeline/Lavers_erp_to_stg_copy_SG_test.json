@@ -1,0 +1,922 @@
+{
+	"name": "Lavers_erp_to_stg_copy_SG_test",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup Schema",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderStoredProcedureName": "[dbo].[SP_Lookup_SG]",
+						"storedProcedureParameters": {
+							"parameter": {
+								"type": "String",
+								"value": {
+									"value": "@{formatDateTime(utcnow(),'yyyy-MM-dd h:mm tt')}",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_Lookup",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "For each table",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup Schema",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup Schema').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item().RefreshType, 'I')",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Copy BTLive data to NTG_Full",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": ".dbo.@{item().SourceTableName}"
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.@{item().TargetTableName}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SourceSystem",
+														"value": {
+															"value": "BisTrack Live",
+															"type": "Expression"
+														}
+													}
+												],
+												"sqlReaderQuery": {
+													"value": "@{concat('select ' , item().column_name , ' from dbo.', item().sourcetablename )}",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"preCopyScript": {
+													"value": "@{concat('truncate table dbo.',item().TargetTableName ,\n' WITH (PARTITIONS (3))'  )}",
+													"type": "Expression"
+												}
+											},
+											"enableStaging": false,
+											"parallelCopies": 32,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_BTlive",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_NTG_Sink",
+												"type": "DatasetReference",
+												"parameters": {
+													"tablename": {
+														"value": "@item().TargetTableName",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "capture logs BTLive_Full",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Copy BTLive data to NTG_Full",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "."
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.pipeline_log"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "SELECT '@{pipeline().DataFactory}' as DataFactory_Name,\n'@{pipeline().Pipeline}' as Pipeline_Name,\n'@{pipeline().RunId}' as RunId,\n'@{item().sourcetablename}' as Source,\n'@{item().TargetTableName}' as Destination,\n'@{pipeline().TriggerType}' as TriggerType,\n'@{pipeline().TriggerId}' as TriggerId,\n'@{pipeline().TriggerName}' as TriggerName,\n'@{pipeline().TriggerTime}' as TriggerTime,\n'@{activity('Copy BTLive data to NTG_Full').output.rowsCopied}' as rowsCopied,\n'@{activity('Copy BTLive data to NTG_Full').output.rowsRead}' as RowsRead,\n'@{activity('Copy BTLive data to NTG_Full').output.usedParallelCopies}' as No_ParallelCopies,\n'@{activity('Copy BTLive data to NTG_Full').output.copyDuration}' as copyDuration_in_secs,\n'@{activity('Copy BTLive data to NTG_Full').output.effectiveIntegrationRuntime}' as effectiveIntegrationRuntime,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].source.type}' as Source_Type,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].sink.type}' as Sink_Type,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].status}' as Execution_Status,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].start}' as CopyActivity_Start_Time,\n'@{utcnow()}' as CopyActivity_End_Time,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].detailedDurations.queuingDuration}' as CopyActivity_queuingDuration_in_secs,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].detailedDurations.timeToFirstByte}' as CopyActivity_timeToFirstByte_in_secs,\n'@{activity('Copy BTLive data to NTG_Full').output.executionDetails[0].detailedDurations.transferDuration}' as CopyActivity_transferDuration_in_secs\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink"
+											},
+											"enableStaging": false,
+											"parallelCopies": 20,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_log_SQL_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_log_SQL_Sink",
+												"type": "DatasetReference"
+											}
+										]
+									},
+									{
+										"name": "capture logs Lavers_copy1",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Copy lavers data to NTG_Full",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "."
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.pipeline_log"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "SELECT '@{pipeline().DataFactory}' as DataFactory_Name,\n'@{pipeline().Pipeline}' as Pipeline_Name,\n'@{pipeline().RunId}' as RunId,\n'@{item().sourcetablename}' as Source,\n'@{item().TargetTableName}' as Destination,\n'@{pipeline().TriggerType}' as TriggerType,\n'@{pipeline().TriggerId}' as TriggerId,\n'@{pipeline().TriggerName}' as TriggerName,\n'@{pipeline().TriggerTime}' as TriggerTime,\n'@{activity('Copy lavers data to NTG_Full').output.rowsCopied}' as rowsCopied,\n'@{activity('Copy lavers data to NTG_Full').output.rowsRead}' as RowsRead,\n'@{activity('Copy lavers data to NTG_Full').output.usedParallelCopies}' as No_ParallelCopies,\n'@{activity('Copy lavers data to NTG_Full').output.copyDuration}' as copyDuration_in_secs,\n'@{activity('Copy lavers data to NTG_Full').output.effectiveIntegrationRuntime}' as effectiveIntegrationRuntime,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].source.type}' as Source_Type,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].sink.type}' as Sink_Type,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].status}' as Execution_Status,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].start}' as CopyActivity_Start_Time,\n'@{utcnow()}' as CopyActivity_End_Time,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].detailedDurations.queuingDuration}' as CopyActivity_queuingDuration_in_secs,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].detailedDurations.timeToFirstByte}' as CopyActivity_timeToFirstByte_in_secs,\n'@{activity('Copy lavers data to NTG_Full').output.executionDetails[0].detailedDurations.transferDuration}' as CopyActivity_transferDuration_in_secs",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink"
+											},
+											"enableStaging": false,
+											"parallelCopies": 20,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_log_SQL_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_log_SQL_Sink",
+												"type": "DatasetReference"
+											}
+										]
+									},
+									{
+										"name": "Copy lavers data to NTG_Full",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": ".dbo.@{item().SourceTableName}"
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.@{item().TargetTableName}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SourceSystem",
+														"value": {
+															"value": "LAVERS",
+															"type": "Expression"
+														}
+													}
+												],
+												"sqlReaderQuery": {
+													"value": "@{concat('select ', item().column_name, ' from ', item().sourcetablename)}\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"preCopyScript": {
+													"value": "@{concat('truncate table dbo.',item().TargetTableName ,\n' WITH (PARTITIONS (4))'  )}",
+													"type": "Expression"
+												}
+											},
+											"enableStaging": false,
+											"parallelCopies": 32,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_LAvers_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_NTG_Sink",
+												"type": "DatasetReference",
+												"parameters": {
+													"tablename": {
+														"value": "@item().TargetTableName",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "Copy BT_Consolidated data to NTG_Full",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SourceSystem",
+														"value": {
+															"value": "BisTrack Consolidated",
+															"type": "Expression"
+														}
+													}
+												],
+												"sqlReaderQuery": {
+													"value": "@{concat('select ', item().column_name, ' from ', item().sourcetablename)}\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"preCopyScript": {
+													"value": "@{concat('truncate table dbo.',item().TargetTableName ,\n' WITH (PARTITIONS (2))'  )}",
+													"type": "Expression"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_Bis_Track_Consolidated_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_NTG_Sink",
+												"type": "DatasetReference",
+												"parameters": {
+													"tablename": {
+														"value": "@item().TargetTableName",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "capture logs BT Consolidated Live_copy1",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Copy BT_Consolidated data to NTG_Full",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "."
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.pipeline_log"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "SELECT '@{pipeline().DataFactory}' as DataFactory_Name,\n'@{pipeline().Pipeline}' as Pipeline_Name,\n'@{pipeline().RunId}' as RunId,\n'@{item().sourcetablename}' as Source,\n'@{item().TargetTableName}' as Destination,\n'@{pipeline().TriggerType}' as TriggerType,\n'@{pipeline().TriggerId}' as TriggerId,\n'@{pipeline().TriggerName}' as TriggerName,\n'@{pipeline().TriggerTime}' as TriggerTime,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.rowsCopied}' as rowsCopied,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.rowsRead}' as RowsRead,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.usedParallelCopies}' as No_ParallelCopies,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.copyDuration}' as copyDuration_in_secs,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.effectiveIntegrationRuntime}' as effectiveIntegrationRuntime,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].source.type}' as Source_Type,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].sink.type}' as Sink_Type,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].status}' as Execution_Status,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].start}' as CopyActivity_Start_Time,\n'@{utcnow()}' as CopyActivity_End_Time,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].detailedDurations.queuingDuration}' as CopyActivity_queuingDuration_in_secs,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].detailedDurations.timeToFirstByte}' as CopyActivity_timeToFirstByte_in_secs,\n'@{activity('Copy BT_Consolidated data to NTG_Full').output.executionDetails[0].detailedDurations.transferDuration}' as CopyActivity_transferDuration_in_secs",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink"
+											},
+											"enableStaging": false,
+											"parallelCopies": 20,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_log_SQL_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_log_SQL_Sink",
+												"type": "DatasetReference"
+											}
+										]
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "Copy BTLive data to NTG_Incremental",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": ".dbo.@{item().SourceTableName}"
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.@{item().TargetTableName}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SourceSystem",
+														"value": {
+															"value": "BisTrack Live",
+															"type": "Expression"
+														}
+													}
+												],
+												"sqlReaderQuery": {
+													"value": "@item().ExecutableQuery\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"preCopyScript": {
+													"value": "@{concat('truncate table dbo.',item().TargetTableName ,\n' WITH (PARTITIONS (3))'  )}",
+													"type": "Expression"
+												}
+											},
+											"enableStaging": false,
+											"parallelCopies": 32,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_BTlive",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_NTG_Sink",
+												"type": "DatasetReference",
+												"parameters": {
+													"tablename": {
+														"value": "@item().TargetTableName",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "capture logs BTLive_Incremental_copy1",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Copy BTLive data to NTG_Incremental",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "."
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.pipeline_log"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "SELECT '@{pipeline().DataFactory}' as DataFactory_Name,\n'@{pipeline().Pipeline}' as Pipeline_Name,\n'@{pipeline().RunId}' as RunId,\n'@{item().sourcetablename}' as Source,\n'@{item().TargetTableName}' as Destination,\n'@{pipeline().TriggerType}' as TriggerType,\n'@{pipeline().TriggerId}' as TriggerId,\n'@{pipeline().TriggerName}' as TriggerName,\n'@{pipeline().TriggerTime}' as TriggerTime,\n'@{activity('Copy BTLive data to NTG_Incremental').output.rowsCopied}' as rowsCopied,\n'@{activity('Copy BTLive data to NTG_Incremental').output.rowsRead}' as RowsRead,\n'@{activity('Copy BTLive data to NTG_Incremental').output.usedParallelCopies}' as No_ParallelCopies,\n'@{activity('Copy BTLive data to NTG_Incremental').output.copyDuration}' as copyDuration_in_secs,\n'@{activity('Copy BTLive data to NTG_Incremental').output.effectiveIntegrationRuntime}' as effectiveIntegrationRuntime,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].source.type}' as Source_Type,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].sink.type}' as Sink_Type,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].status}' as Execution_Status,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].start}' as CopyActivity_Start_Time,\n'@{utcnow()}' as CopyActivity_End_Time,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].detailedDurations.queuingDuration}' as CopyActivity_queuingDuration_in_secs,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].detailedDurations.timeToFirstByte}' as CopyActivity_timeToFirstByte_in_secs,\n'@{activity('Copy BTLive data to NTG_Incremental').output.executionDetails[0].detailedDurations.transferDuration}' as CopyActivity_transferDuration_in_secs\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink"
+											},
+											"enableStaging": false,
+											"parallelCopies": 20,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_log_SQL_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_log_SQL_Sink",
+												"type": "DatasetReference"
+											}
+										]
+									},
+									{
+										"name": "capture logs Lavers",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Copy lavers data to NTG_Incremental",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "."
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.pipeline_log"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "SELECT '@{pipeline().DataFactory}' as DataFactory_Name,\n'@{pipeline().Pipeline}' as Pipeline_Name,\n'@{pipeline().RunId}' as RunId,\n'@{item().sourcetablename}' as Source,\n'@{item().TargetTableName}' as Destination,\n'@{pipeline().TriggerType}' as TriggerType,\n'@{pipeline().TriggerId}' as TriggerId,\n'@{pipeline().TriggerName}' as TriggerName,\n'@{pipeline().TriggerTime}' as TriggerTime,\n'@{activity('Copy lavers data to NTG_Incremental').output.rowsCopied}' as rowsCopied,\n'@{activity('Copy lavers data to NTG_Incremental').output.rowsRead}' as RowsRead,\n'@{activity('Copy lavers data to NTG_Incremental').output.usedParallelCopies}' as No_ParallelCopies,\n'@{activity('Copy lavers data to NTG_Incremental').output.copyDuration}' as copyDuration_in_secs,\n'@{activity('Copy lavers data to NTG_Incremental').output.effectiveIntegrationRuntime}' as effectiveIntegrationRuntime,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].source.type}' as Source_Type,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].sink.type}' as Sink_Type,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].status}' as Execution_Status,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].start}' as CopyActivity_Start_Time,\n'@{utcnow()}' as CopyActivity_End_Time,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].detailedDurations.queuingDuration}' as CopyActivity_queuingDuration_in_secs,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].detailedDurations.timeToFirstByte}' as CopyActivity_timeToFirstByte_in_secs,\n'@{activity('Copy lavers data to NTG_Incremental').output.executionDetails[0].detailedDurations.transferDuration}' as CopyActivity_transferDuration_in_secs",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink"
+											},
+											"enableStaging": false,
+											"parallelCopies": 20,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_log_SQL_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_log_SQL_Sink",
+												"type": "DatasetReference"
+											}
+										]
+									},
+									{
+										"name": "Copy lavers data to NTG_Incremental",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": ".dbo.@{item().SourceTableName}"
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.@{item().TargetTableName}"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SourceSystem",
+														"value": {
+															"value": "LAVERS",
+															"type": "Expression"
+														}
+													}
+												],
+												"sqlReaderQuery": {
+													"value": "@{concat('select ', item().column_name, ' from ', item().sourcetablename)}\nwhere DateTimeCreated >= DATEADD(m, -6, getdate())\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"preCopyScript": {
+													"value": "@{concat('truncate table dbo.',item().TargetTableName ,\n' WITH (PARTITIONS (4))'  )}",
+													"type": "Expression"
+												}
+											},
+											"enableStaging": false,
+											"parallelCopies": 32,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_LAvers_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_NTG_Sink",
+												"type": "DatasetReference",
+												"parameters": {
+													"tablename": {
+														"value": "@item().TargetTableName",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "Copy BT_Consolidated data to NTG_Incremental",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"additionalColumns": [
+													{
+														"name": "SourceSystem",
+														"value": {
+															"value": "BisTrack Consolidated",
+															"type": "Expression"
+														}
+													}
+												],
+												"sqlReaderQuery": {
+													"value": "@{concat('select ', item().column_name, ' from ', item().sourcetablename)}\nwhere DateTimeCreated >= DATEADD(m, -6, getdate())\n",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink",
+												"preCopyScript": {
+													"value": "@{concat('truncate table dbo.',item().TargetTableName ,\n' WITH (PARTITIONS (2))'  )}",
+													"type": "Expression"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_Bis_Track_Consolidated_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_NTG_Sink",
+												"type": "DatasetReference",
+												"parameters": {
+													"tablename": {
+														"value": "@item().TargetTableName",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "capture logs BT Consolidated Live",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "Copy BT_Consolidated data to NTG_Incremental",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "7.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [
+											{
+												"name": "Source",
+												"value": "."
+											},
+											{
+												"name": "Destination",
+												"value": "dbo.pipeline_log"
+											}
+										],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "SELECT '@{pipeline().DataFactory}' as DataFactory_Name,\n'@{pipeline().Pipeline}' as Pipeline_Name,\n'@{pipeline().RunId}' as RunId,\n'@{item().sourcetablename}' as Source,\n'@{item().TargetTableName}' as Destination,\n'@{pipeline().TriggerType}' as TriggerType,\n'@{pipeline().TriggerId}' as TriggerId,\n'@{pipeline().TriggerName}' as TriggerName,\n'@{pipeline().TriggerTime}' as TriggerTime,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.rowsCopied}' as rowsCopied,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.rowsRead}' as RowsRead,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.usedParallelCopies}' as No_ParallelCopies,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.copyDuration}' as copyDuration_in_secs,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.effectiveIntegrationRuntime}' as effectiveIntegrationRuntime,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].source.type}' as Source_Type,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].sink.type}' as Sink_Type,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].status}' as Execution_Status,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].start}' as CopyActivity_Start_Time,\n'@{utcnow()}' as CopyActivity_End_Time,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].detailedDurations.queuingDuration}' as CopyActivity_queuingDuration_in_secs,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].detailedDurations.timeToFirstByte}' as CopyActivity_timeToFirstByte_in_secs,\n'@{activity('Copy BT_Consolidated data to NTG_Incremental').output.executionDetails[0].detailedDurations.transferDuration}' as CopyActivity_transferDuration_in_secs",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "SqlServerSink"
+											},
+											"enableStaging": false,
+											"parallelCopies": 20,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_log_SQL_Source",
+												"type": "DatasetReference"
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_log_SQL_Sink",
+												"type": "DatasetReference"
+											}
+										]
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"PipelineRunId": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "eCommerce_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-03-31T10:11:57Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

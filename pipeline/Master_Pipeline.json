@@ -1,0 +1,60 @@
+{
+	"name": "Master_Pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Master Pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Master_Pipeline_Data_Load",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "To stop trigger",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Execute Master Pipeline",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://management.azure.com/subscriptions/8396ad04-1361-4073-99c7-941249e2412f/resourceGroups/ntg-mid-paas-dev/providers/Microsoft.DataFactory/factories/',pipeline().DataFactory,'/triggers/'pipeline().TriggerName'/stop?api-version=2018-06-01\n\n",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"authentication": {
+						"type": "MSI",
+						"resource": {
+							"value": "https://management.azure.com",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "eCommerce_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-03-31T17:21:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

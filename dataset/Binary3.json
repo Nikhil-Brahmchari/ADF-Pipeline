@@ -1,0 +1,22 @@
+{
+	"name": "Binary3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Sftp1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": {
+					"value": "@item().Filename",
+					"type": "Expression"
+				},
+				"folderPath": "/C:/Arnav"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

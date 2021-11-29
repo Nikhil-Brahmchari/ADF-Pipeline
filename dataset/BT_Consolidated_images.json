@@ -1,0 +1,17 @@
+{
+	"name": "BT_Consolidated_images",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BT Consolidated images",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

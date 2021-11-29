@@ -1,0 +1,237 @@
+{
+	"name": "Master_Pipeline_Data_Load",
+	"properties": {
+		"activities": [
+			{
+				"name": "Call Erp to Stg Pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Set variable for Master Pipeline Run ID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "erp_to_stg_test",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Call Stg to Fact Pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Call Erp to Stg Pipeline",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set variable for Master Pipeline Run ID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "stg_to_fct_v2",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Set variable for Master Pipeline Run ID",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Variable RunID",
+					"value": {
+						"value": "@concat('https://management.azure.com/subscriptions/8396ad04-1361-4073-99c7-941249e2412f/resourceGroups/ntg-mid-paas-dev/providers/Microsoft.DataFactory/factories/',pipeline().DataFactory,'/pipelineruns/',pipeline().RunId,'/cancel?api-version=2018-06-01')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "If ERP to Stg Pipeline fails",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Call Erp to Stg Pipeline",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Call ERP to Stg Pipeline').output.executionDetails[0].status, 'Failed')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "To call URL",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@variables('Variable RunID')",
+									"type": "Expression"
+								},
+								"method": "POST",
+								"body": {
+									"value": "{}",
+									"type": "Expression"
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": {
+										"value": "https://management.azure.com",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "If Stg to Fact Pipeline Fails",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Call Stg to Fact Pipeline",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Call ERP to Stg Pipeline').output.executionDetails[0].status, 'Failed')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Break Out Stg to Fct",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@variables('Variable RunID')",
+									"type": "Expression"
+								},
+								"method": "POST",
+								"body": {
+									"value": "{“message”:”Cancelling the Lavers Master pipeline”}",
+									"type": "Expression"
+								},
+								"authentication": {
+									"type": "MSI",
+									"resource": {
+										"value": "https://management.azure.com",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Web2",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Call Erp to Stg Pipeline",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-11.uksouth.logic.azure.com:443/workflows/f25d3a3a1c804cbb9dd41704969df11b/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=K7geWVwTm6GKNZE98EIxuH3-zoGYQOeP5blgNLu0ql0",
+					"method": "POST",
+					"body": {
+						"value": "{\n    \"title\": \"Master PIpeLine\",\n    \"message\": \"Failed\",\n    \"color\": \"\",\n    \"dataFactoryName\": \"@{pipeline().DataFactory}\",\n    \"pipelineName\": \"@{pipeline().Pipeline}\",\n    \"pipelineRunId\": \"@{pipeline().RunId}\",\n    \"Error\": \"@{activity('Call Erp to Stg Pipeline').error.message}\",\n    \"time\": \"@{utcnow()}\"\n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Web3",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Call Stg to Fact Pipeline",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-11.uksouth.logic.azure.com:443/workflows/f25d3a3a1c804cbb9dd41704969df11b/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=K7geWVwTm6GKNZE98EIxuH3-zoGYQOeP5blgNLu0ql0",
+					"method": "POST",
+					"body": {
+						"value": "{\n    \"title\": \"Master PIpeLine\",\n    \"message\": \"Failed\",\n    \"color\": \"\",\n    \"dataFactoryName\": \"@{pipeline().DataFactory}\",\n    \"pipelineName\": \"@{pipeline().Pipeline}\",\n    \"pipelineRunId\": \"@{pipeline().RunId}\",\n    \"Error\": \"@{activity('Call Erp to Stg Pipeline').error.message}\",\n    \"time\": \"@{utcnow()}\"\n}",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"Variable RunID": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "eCommerce_Pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-04-19T10:28:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

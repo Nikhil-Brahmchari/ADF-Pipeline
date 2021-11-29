@@ -1,0 +1,61 @@
+{
+	"name": "ScanTrackDocType",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "ScanTrackDocTypeID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			},
+			{
+				"name": "ExtLinkTypeID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DefaultDocument",
+				"type": "bit"
+			},
+			{
+				"name": "ExtApprovalAction",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "SubFolder",
+				"type": "varchar"
+			},
+			{
+				"name": "HasBarcode",
+				"type": "bit"
+			},
+			{
+				"name": "BarcodePrefix",
+				"type": "varchar"
+			},
+			{
+				"name": "Prompt1",
+				"type": "varchar"
+			},
+			{
+				"name": "Prompt2",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "ScanTrackDocType_ERP"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

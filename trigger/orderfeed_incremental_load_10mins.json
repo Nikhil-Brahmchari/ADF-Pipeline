@@ -1,0 +1,24 @@
+{
+	"name": "orderfeed_incremental_load_10mins",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Orderfeed_and_orderlinefeed_Load",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 10,
+				"startTime": "2021-03-26T06:30:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}

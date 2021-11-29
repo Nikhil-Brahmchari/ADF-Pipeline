@@ -1,0 +1,188 @@
+{
+	"name": "OrderFeed_Sink_Target",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ntg_orderstagingdb_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Brand",
+				"type": "varchar"
+			},
+			{
+				"name": "OrderGUID",
+				"type": "varchar"
+			},
+			{
+				"name": "OrderType",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "OrderStatus",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "DateTimeCreated",
+				"type": "smalldatetime",
+				"precision": 16,
+				"scale": 0
+			},
+			{
+				"name": "CreatedByID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "BranchID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CustomerID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SaleType",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "CashSale",
+				"type": "bit"
+			},
+			{
+				"name": "OrderPlacementTypeID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DateRequired",
+				"type": "smalldatetime",
+				"precision": 16,
+				"scale": 0
+			},
+			{
+				"name": "DateRequiredOption",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "DateRequested",
+				"type": "smalldatetime",
+				"precision": 16,
+				"scale": 0
+			},
+			{
+				"name": "CustomerRef",
+				"type": "varchar"
+			},
+			{
+				"name": "ContactName",
+				"type": "varchar"
+			},
+			{
+				"name": "ContactNumber",
+				"type": "varchar"
+			},
+			{
+				"name": "ContactEmailAddress",
+				"type": "varchar"
+			},
+			{
+				"name": "SalesRepID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SalesAreaID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DeliveryAddress",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryAddressLine1",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryAddressLine2",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryAddressLine3",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryCity",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryCounty",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryPostCode",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryCountry",
+				"type": "varchar"
+			},
+			{
+				"name": "DeliveryTime",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "InvoiceAddress",
+				"type": "varchar"
+			},
+			{
+				"name": "HeaderNotes",
+				"type": "varchar"
+			},
+			{
+				"name": "SpecialInstructions",
+				"type": "varchar"
+			},
+			{
+				"name": "Notes",
+				"type": "varchar"
+			},
+			{
+				"name": "PaymentDateTime",
+				"type": "smalldatetime",
+				"precision": 16,
+				"scale": 0
+			},
+			{
+				"name": "PaymentReference",
+				"type": "varchar"
+			},
+			{
+				"name": "PaymentMethodID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PaymentAmount",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "NTG_OrderHeaderImport"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

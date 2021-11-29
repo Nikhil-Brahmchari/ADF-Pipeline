@@ -1,0 +1,145 @@
+{
+	"name": "OrderLineFeed_Stg_History_Sink_Copy",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "NTG_DWH_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "MasterERPOrderLineFeedID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "OrderGUID",
+				"type": "varchar"
+			},
+			{
+				"name": "LineNumber",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "LineType",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "ProductID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ManualCode",
+				"type": "varchar"
+			},
+			{
+				"name": "ManualDescription",
+				"type": "varchar"
+			},
+			{
+				"name": "ManualOrderLineTypeID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Quantity",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 4
+			},
+			{
+				"name": "QuantityTally",
+				"type": "varchar"
+			},
+			{
+				"name": "InputPerID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PerID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "UnitSellPrice",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "TotalSellPrice",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "TotalVAT",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "TotalVolume",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 8
+			},
+			{
+				"name": "VatID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "VatRateID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CustomerRef",
+				"type": "varchar"
+			},
+			{
+				"name": "Notes",
+				"type": "varchar"
+			},
+			{
+				"name": "SpecialInstructions",
+				"type": "varchar"
+			},
+			{
+				"name": "InternalNotes",
+				"type": "varchar"
+			},
+			{
+				"name": "udfWebRange",
+				"type": "bit"
+			},
+			{
+				"name": "udfDirect",
+				"type": "bit"
+			},
+			{
+				"name": "ManualOrderLineCostPrice",
+				"type": "money",
+				"precision": 19,
+				"scale": 4
+			},
+			{
+				"name": "DWHLastModified",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "OrderLineFeed_Stg_History"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
